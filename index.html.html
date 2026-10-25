@@ -1,0 +1,130 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Graffi City House: concorrência por período</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#ECEDEF;--sf:#FFFFFF;--ink:#171B26;--mute:#5E6573;--line:#D3D6DC;--acc:#5A36E0;--up:#B3321F;--dn:#1F7A4A;
+--c0:#5A36E0;--c1:#1F8A79;--c2:#B8741C;--c3:#C2366B;--c4:#2D6FD6;--c5:#6B7280;
+color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#12141A;--sf:#1B1E27;--ink:#ECEEF3;--mute:#A0A7B5;--line:#323746;--acc:#9B86FF;--up:#FF8C79;--dn:#6FD79B;--c0:#9B86FF;--c1:#4CC4AF;--c2:#E3A24A;--c3:#FF7FAF;--c4:#7FB0FF;--c5:#A0A7B5;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#12141A;--sf:#1B1E27;--ink:#ECEEF3;--mute:#A0A7B5;--line:#323746;--acc:#9B86FF;--up:#FF8C79;--dn:#6FD79B;--c0:#9B86FF;--c1:#4CC4AF;--c2:#E3A24A;--c3:#FF7FAF;--c4:#7FB0FF;--c5:#A0A7B5;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 15px/1.5 "Archivo",system-ui,-apple-system,"Segoe UI",sans-serif}
+main{max-width:980px;margin:0 auto;padding:28px 18px 56px}
+h1{font:800 clamp(26px,5vw,40px)/1.05 "Archivo",system-ui,sans-serif;font-stretch:80%;letter-spacing:-.01em;margin:0 0 8px}
+h2{font:700 18px/1.2 "Archivo",system-ui,sans-serif;margin:32px 0 10px}
+.sub{color:var(--mute);margin:0 0 16px;max-width:66ch}
+.note{background:var(--sf);border:1px solid var(--line);border-left:4px solid var(--acc);padding:12px 14px;border-radius:6px;max-width:74ch;margin:0}
+.card{background:var(--sf);border:1px solid var(--line);border-radius:8px;padding:16px}
+.tabs{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:12px}
+button{font:inherit;font-weight:600;color:var(--ink);background:var(--sf);border:1px solid var(--line);border-radius:6px;padding:6px 12px;cursor:pointer}
+button[aria-pressed="true"]{background:var(--acc);border-color:var(--acc);color:#fff}
+button:focus-visible{outline:2px solid var(--acc);outline-offset:2px}
+.leg{display:flex;flex-wrap:wrap;gap:4px 16px;color:var(--mute);font-size:13px;margin-bottom:10px;min-height:20px}
+.leg b{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.pr{display:grid;grid-template-columns:96px 1fr;gap:10px;padding:6px 0;border-top:1px solid var(--line);align-items:start}
+.pl{font-weight:650}
+.br{display:flex;align-items:center;gap:8px;margin:2px 0}
+.br i{display:block;height:14px;border-radius:2px;min-width:2px}
+.br span{font-variant-numeric:tabular-nums;font-size:13px}
+.cl{font-size:13px;font-weight:650;margin:2px 0}
+.mt{color:var(--mute);font-size:13px}
+.dv{margin:10px 0 2px;padding-top:8px;border-top:2px dashed var(--line);color:var(--mute);font-size:12.5px}
+.ins{margin:12px 0 0;color:var(--mute);font-size:13.5px}
+.tw{overflow-x:auto}
+table{border-collapse:collapse;width:100%;min-width:760px}
+th,td{padding:7px 8px;border-top:1px solid var(--line);text-align:left;vertical-align:top;font-variant-numeric:tabular-nums}
+th{font-weight:650;font-size:13px;color:var(--mute);border-top:0}
+td.n{font-weight:650}
+td small{display:block;font-size:12px;font-weight:700}
+td.cl2{color:var(--mute);font-size:13px}
+.up{color:var(--up)}.dn{color:var(--dn)}
+.src{color:var(--mute);font-size:12.5px;max-width:80ch}
+.src li{margin:2px 0}
+@media (max-width:560px){.pr{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<main>
+<h1>Graffi City House vs concorrência</h1>
+
+<h2>Preço por período</h2>
+<div class="tabs" id="tabs"></div>
+<div class="card">
+ <div class="leg" id="leg"></div>
+ <div id="chart"></div>
+</div>
+
+<h2>Tabela por período</h2>
+<div class="card"><div class="tw"><table id="tb"></table></div></div>
+
+</main>
+<script>
+const PER=[["nov","Novembro"],["fin","Feriados nov"],["dez","Dezembro"],["nat","Natal"],["rev","Réveillon"],["jan","Janeiro"],["fev","Fevereiro"],["car","Carnaval"],["mar","Março"]];
+const RM=["Duplo","Misto 8","Misto 6","Misto 4","Fem 4"];
+const PR=[{id:"graffi",n:"Graffi City House"},{id:"pup",n:"Pup Hostel SC"},{id:"flo",n:"Floripa Hostel"},{id:"esq",n:"Esquina 8 Hostel"},{id:"cec",n:"Rede Andrade Cecomtur"},{id:"ibis",n:"Ibis Florianópolis"}];
+const D={
+ pup:{
+  fin:{"Duplo":235,"Misto 8":95,"Fem 4":110,"Misto 6":105},
+  nov:"bloqueado",
+  dez:{"Duplo":200,"Misto 8":70,"Misto 4":75,"Fem 4":77},
+  nat:{"Duplo":220,"Misto 8":80,"Misto 4":83,"Fem 4":88},
+  rev:{"Duplo":750,"Misto 8":200,"Misto 4":220,"Fem 4":300},
+  jan:{"Duplo":280,"Misto 8":120,"Fem 4":130,"Misto 4":125},
+  car:{"Duplo":550,"Misto 8":180,"Misto 4":210,"Fem 4":230},
+  mar:{"Duplo":180,"Misto 8":80,"Misto 4":88,"Fem 4":90}
+ },
+ graffi:{},
+ flo:{nov:{"Duplo":185,"Misto 6":85},fin:{"Duplo":200,"Misto 6":120},nat:{"Duplo":240,"Misto 6":100},rev:{"Duplo":800,"Misto 6":300},jan:"bloqueado",fev:"bloqueado",car:"bloqueado",mar:"bloqueado"},
+ esq:{fin:{"Duplo":300},nov:{"Duplo":171},dez:{"Duplo":191},nat:{"Duplo":200},rev:{"Duplo":440},jan:{"Duplo":250},fev:{"Duplo":250},car:{"Duplo":300},mar:{"Duplo":250}},
+ cec:{fin:{"Duplo":450},nov:{"Duplo":230},dez:{"Duplo":330},nat:{"Duplo":350},rev:{"Duplo":700},jan:{"Duplo":550},fev:{"Duplo":400},car:{"Duplo":550},mar:"bloqueado"},
+ ibis:{fin:{"Duplo":460},nov:{"Duplo":430},dez:{"Duplo":520},nat:{"Duplo":495},rev:{"Duplo":980},jan:{"Duplo":580},fev:{"Duplo":535},car:{"Duplo":656},mar:{"Duplo":535}}
+};
+D.pup.fev=D.pup.jan;D.flo.dez=D.flo.nov;D.graffi={};PER.forEach(([k])=>{D.graffi[k]={};RM.forEach(r=>{D.graffi[k][r]=0})});
+let room="Duplo";
+const HAS=(p,r)=>PER.some(([k])=>{const x=D[p.id]&&D[p.id][k];return !!x&&typeof x==="object"&&typeof x[r]==="number"});
+const get=(p,k,r)=>{const x=D[p.id]&&D[p.id][k];if(!HAS(p,r))return"nao";if(x==="sem cotação")return"semcot";if(x==="bloqueado")return"bloq";return x&&x[r]!=null?x[r]:"bloq"};
+const sg=d=>(d>=0?"+":"−")+Math.abs(Math.round(d))+"%";
+const fx=x=>x.toFixed(1).replace(".",",");
+const tabs=document.getElementById("tabs");
+RM.forEach(r=>{const b=document.createElement("button");b.type="button";b.textContent=r;b.addEventListener("click",()=>{room=r;draw()});tabs.appendChild(b)});
+function draw(){
+ tabs.querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.textContent===room));
+ const vals=[];const used=new Set();
+ PR.forEach((p,j)=>PER.forEach(([k])=>{const v=get(p,k,room);if(typeof v==="number"&&v>0){used.add(j);vals.push(v)}}));
+ const mx=Math.max.apply(null,vals.concat([1]));
+ let h="";
+ PER.forEach(([k,l])=>{
+  if(k==="fev")h+='<div class="dv">depois de 31/jan</div>';
+  let b="";
+  PR.forEach((p,j)=>{const v=get(p,k,room);
+   if(v==="semcot")b+='<div class="cl" style="color:var(--c'+j+')">'+p.n+': sem cotação</div>';else if(v==="bloq"&&used.has(j))b+='<div class="cl" style="color:var(--c'+j+')">'+p.n+': bloqueado p/ venda</div>';
+   else if(typeof v==="number"&&v>0)b+='<div class="br"><i style="width:'+(v/mx*78)+'%;background:var(--c'+j+')"></i><span>R$ '+v+'</span></div>';
+  });
+  h+='<div class="pr"><div class="pl">'+l+'</div><div>'+(b||'<span class="mt">sem dado</span>')+'</div></div>';
+ });
+ document.getElementById("chart").innerHTML=h;
+ document.getElementById("leg").innerHTML=PR.map((p,j)=>used.has(j)?'<span><b style="background:var(--c'+j+')"></b>'+p.n+'</span>':"").join("")+(PR.some(p=>!HAS(p,room))?'<span>Não possui este quarto: '+PR.filter(p=>!HAS(p,room)).map(p=>p.n).join(", ")+'</span>':"");
+ let th="<thead><tr><th>Opção</th>"+PER.map(([k,l])=>"<th>"+l+"</th>").join("")+"</tr></thead><tbody>";
+ PR.forEach((p,j)=>{
+  th+='<tr><td class="n" style="color:var(--c'+j+')">'+p.n+"</td>"+PER.map(([k])=>{
+   const v=get(p,k,room),g=get(PR[0],k,room);
+   if(v==="semcot")return'<td class="cl2">sem cotação</td>';if(v==="bloq")return'<td class="cl2">bloqueado</td>';if(v==="nao")return'<td class="cl2">não possui</td>';
+   if(v===null)return'<td class="cl2">—</td>';
+   const d=(j>0&&typeof g==="number"&&g>0)?'<small class="'+(v>g?"up":"dn")+'">'+sg((v/g-1)*100)+' vs Graffi</small>':"";
+   return"<td>R$ "+v+d+"</td>";
+  }).join("")+"</tr>";
+ });
+ th+='<tr><td class="n">Média dos concorrentes</td>'+PER.map(([k])=>{const n=PR.slice(1).map(p=>get(p,k,room)).filter(v=>typeof v==="number");if(!n.length)return'<td class="cl2">—</td>';const a=n.reduce((s,v)=>s+v,0)/n.length,g=get(PR[0],k,room);return"<td>R$ "+Math.round(a)+(g>0?'<small class="'+(g>a?"up":"dn")+'">Graffi '+sg((g/a-1)*100)+'</small>':"")+"</td>"}).join("")+"</tr>";
+ document.getElementById("tb").innerHTML=th+"</tbody>";
+}
+draw();
+</script>
+</body>
+</html>
